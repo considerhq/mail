@@ -8770,7 +8770,19 @@ begin
         end
 
         if p != eof || cs < 648
-          raise Mail::Field::IncompleteParseError.new(Mail::ReceivedElement, data, p)
+          extracted_date = begin
+            Date.parse(data)
+          rescue ArgumentError => e
+            raise e unless e.message == "invalid date"
+          end
+
+          if extracted_date
+            received.time = nil
+            received.date = extracted_date
+            received.info = ""
+          else
+            raise Mail::Field::IncompleteParseError.new(Mail::ReceivedElement, data, p)
+          end
         end
 
         received

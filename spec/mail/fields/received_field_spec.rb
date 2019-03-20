@@ -55,4 +55,24 @@ describe Mail::ReceivedField do
     expect(t.date_time).to eq nil
     expect(t.formatted_date).to eq nil
   end
+
+  it "should handle an invalid value (with colons)" do
+    t = Mail::ReceivedField.new("by 2002:a05:7000:108d:0:0:0:0 with SMTP id y13csp23744073wrw;\nWed, 13 Mar 2019 14:50:05 -0700 (PDT)")
+
+    expect(t.name).to eq "Received"
+    expect(t.value).to eq "by 2002:a05:7000:108d:0:0:0:0 with SMTP id y13csp23744073wrw;\nWed, 13 Mar 2019 14:50:05 -0700 (PDT)"
+    expect(t.info).to eq ""
+    expect(t.date_time.class).to eq DateTime
+    expect(t.formatted_date).to eq "Wed, 13 Mar 2019 00:00:00 +0000"
+  end
+
+  it "should handle an invalid value (with angular brackets)" do
+    t = Mail::ReceivedField.new("from [192.168.1.186] ([206.248.139.39]) by mx.google.com with ESMTPSA id m10sm4741360qae.12.2013.08.06.07.40.15 for <multiple recipients> (version=TLSv1 cipher=RC4-SHA bits=128/128); Tue, 06 Aug 2013 07:40:18 -0700 (PDT)'")
+
+    expect(t.name).to eq "Received"
+    expect(t.value).to eq "from [192.168.1.186] ([206.248.139.39]) by mx.google.com with ESMTPSA id m10sm4741360qae.12.2013.08.06.07.40.15 for <multiple recipients> (version=TLSv1 cipher=RC4-SHA bits=128/128); Tue, 06 Aug 2013 07:40:18 -0700 (PDT)'"
+    expect(t.info).to eq ""
+    expect(t.date_time.class).to eq DateTime
+    expect(t.formatted_date).to eq "Tue, 06 Aug 2013 00:00:00 +0000"
+  end
 end
